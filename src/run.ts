@@ -130,10 +130,16 @@ export async function runPublish({
     { cwd }
   );
 
-  await gitUtils.pushTags();
+  try {
+    await gitUtils.pushTags();
+  } catch (error) {
+    console.log("error:", error);
+  }
 
   let { packages, tool } = await getPackages(cwd);
   let releasedPackages: Package[] = [];
+
+  console.log("changesetPublishOutput:", changesetPublishOutput.stdout);
 
   if (tool !== "root") {
     let newTagRegex = /New tag:\s+(@[^/]+\/[^@]+|[^/]+)@([^\s]+)/;
@@ -190,6 +196,8 @@ export async function runPublish({
       }
     }
   }
+
+  console.log("releasedPackages:", releasedPackages);
 
   if (releasedPackages.length) {
     return {
